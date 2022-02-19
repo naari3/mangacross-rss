@@ -1,4 +1,4 @@
-use comic::{Comic, Episode};
+use manga_cross::{Comic, Episode};
 use reqwest::header::CONTENT_TYPE;
 use rss::{ChannelBuilder, EnclosureBuilder, GuidBuilder, ImageBuilder, Item, ItemBuilder};
 use tokio::fs::File;
@@ -6,22 +6,22 @@ use tokio::io::AsyncWriteExt;
 
 use log::info;
 
-use crate::comic::MangaCrossComic;
+use crate::manga_cross::MangaCrossComic;
 
-mod comic;
+mod manga_cross;
 
 const BOKUYABA_JSON_URL: &str = "https://mangacross.jp/api/comics/yabai.json?type=public";
 
 async fn make_item(ep: &Episode, comic: &Comic) -> eyre::Result<Item> {
-    info!("Make ep {} start", ep.sort_volume.clone());
+    info!("Make ep {} start", ep.sort_volume);
     let mut item = ItemBuilder::default();
     let guid = GuidBuilder::default()
         .value(format!("https://mangacross.jp{}", ep.page_url))
         .permalink(true)
         .build();
-    info!("Make ep {} download image start", ep.sort_volume.clone());
+    info!("Make ep {} download image start", ep.sort_volume);
     let image_res = reqwest::get(ep.list_image_double_url.as_str()).await?;
-    info!("Make ep {} download image done", ep.sort_volume.clone());
+    info!("Make ep {} download image done", ep.sort_volume);
     let mime_type = match image_res.headers().get(CONTENT_TYPE) {
         Some(content_type) => content_type.to_str()?,
         None => "",
@@ -35,10 +35,10 @@ async fn make_item(ep: &Episode, comic: &Comic) -> eyre::Result<Item> {
         .mime_type(mime_type)
         .length(length)
         .build();
-    info!("Make ep {} done", ep.sort_volume.clone());
+    info!("Make ep {} done", ep.sort_volume);
 
     Ok(item
-        .title(format!("{} | {}", ep.volume.clone(), ep.title.clone()))
+        .title(format!("{} | {}", ep.volume, ep.title))
         .link(format!("https://mangacross.jp{}", ep.page_url))
         .guid(guid)
         .pub_date(ep.publish_start.clone())
@@ -78,9 +78,14 @@ async fn main() -> eyre::Result<()> {
         .last_build_date(bokuyaba.latest_episode_publish_start.clone())
         .build();
 
-    let items: Vec<Item> =
-        futures::future::try_join_all(bokuyaba.episodes.iter().map(|ep| make_item(ep, &bokuyaba)))
-            .await?;
+    let items: Vec<Item> = futures::future::try_join_all(
+        bokuyaba
+            .episodes
+            .iter()
+            .filter(|ep| ep.status == "public")
+            .map(|ep| make_item(ep, &bokuyaba)),
+    )
+    .await?;
     channel.set_items(items);
 
     let feed = channel.to_string();
