@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 eyre = "0.6.6"
-reqwest = "0.11.9"
+reqwest = { version = "0.11.9", default-features = false, features = ["rustls-tls"] }
 rss = "2.0.0"
 tokio = { version = "1.17.0", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
