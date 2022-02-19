@@ -1,0 +1,30 @@
+name: Update RSS
+
+on:
+  push:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: r7k build
+        run: |
+          version=0.1.2
+          wget "https://github.com/naari3/bokuyaba-rss/releases/download/v${version}/bokuyaba-rss_v${version}_x86_64-unknown-linux-musl.zip"
+          unzip "bokuyaba-rss_v${version}_x86_64-unknown-linux-musl.zip"
+          ./bokuyaba-rss
+      - name: mv public
+        run: |
+          mkdir ./public
+          mv ./feed.xml ./bokuyaba-rss/feed.xml
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
