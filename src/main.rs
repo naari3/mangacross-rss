@@ -38,7 +38,7 @@ async fn make_item(ep: &Episode, comic: &Comic) -> eyre::Result<Item> {
     info!("Make ep {} done", ep.sort_volume.clone());
 
     Ok(item
-        .title(ep.title.clone())
+        .title(format!("{} | {}", ep.volume.clone(), ep.title.clone()))
         .link(format!("https://mangacross.jp{}", ep.page_url))
         .guid(guid)
         .pub_date(ep.publish_start.clone())
