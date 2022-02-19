@@ -1,0 +1,14 @@
+name: tag
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - Cargo.toml
+
+jobs:
+  tag:
+    uses: r7kamura/workflows/.github/workflows/rust-tag.yml@main
+    secrets:
+      github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
