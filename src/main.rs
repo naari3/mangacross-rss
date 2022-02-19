@@ -49,7 +49,7 @@ async fn make_item(ep: &Episode, comic: &Comic) -> eyre::Result<Item> {
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
-    env_logger::from_env(env_logger::Env::default().default_filter_or("info")).init();
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
     info!("Initialized!");
 
     let res = reqwest::get(BOKUYABA_JSON_URL).await?;
