@@ -11,12 +11,13 @@ use crate::manga_cross::MangaCrossComic;
 mod manga_cross;
 
 const BOKUYABA_JSON_URL: &str = "https://mangacross.jp/api/comics/yabai.json?type=public";
+const MANGACROSS_HOST: &str = "https://mangacross.jp";
 
 async fn make_item(ep: &Episode, comic: &Comic) -> eyre::Result<Item> {
     info!("Make ep {} start", ep.sort_volume);
     let mut item = ItemBuilder::default();
     let guid = GuidBuilder::default()
-        .value(format!("https://mangacross.jp{}", ep.page_url))
+        .value(format!("{}{}", MANGACROSS_HOST, ep.page_url))
         .permalink(true)
         .build();
     info!("Make ep {} download image start", ep.sort_volume);
@@ -39,7 +40,7 @@ async fn make_item(ep: &Episode, comic: &Comic) -> eyre::Result<Item> {
 
     Ok(item
         .title(format!("{} | {}", ep.volume, ep.title))
-        .link(format!("https://mangacross.jp{}", ep.page_url))
+        .link(format!("{}{}", MANGACROSS_HOST, ep.page_url))
         .guid(guid)
         .pub_date(ep.publish_start.clone())
         .author(comic.author.clone())
@@ -63,7 +64,8 @@ async fn main() -> eyre::Result<()> {
     let mut channel = ChannelBuilder::default()
         .title(bokuyaba.title.clone())
         .link(format!(
-            "https://mangacross.jp/comics/{}/",
+            "{}/comics/{}/",
+            MANGACROSS_HOST,
             bokuyaba.dir_name.clone()
         ))
         .description(bokuyaba.caption_for_search.clone())
