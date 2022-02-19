@@ -1,7 +1,6 @@
 name: Update RSS
 
 on:
-  push:
   schedule:
     - cron: "0 * * * *"
   workflow_dispatch:
@@ -11,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: r7k build
+      - name: bokuyaba-rss_v build
         run: |
           version=0.1.2
           wget "https://github.com/naari3/bokuyaba-rss/releases/download/v${version}/bokuyaba-rss_v${version}_x86_64-unknown-linux-musl.zip"
