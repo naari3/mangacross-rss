@@ -84,7 +84,7 @@ pub struct Comic {
     pub icon_url: String,
     pub tw_hashtag: String,
     pub tw_screen_name: String,
-    pub next_publish_at: String,
+    pub next_publish_at: Option<String>,
     pub next_date_customize_text: Option<String>,
     pub promotion: Promotion,
     pub is_unlimited_comic: bool,
@@ -177,7 +177,7 @@ pub struct Book {
     pub title: String,
     pub author: String,
     pub cover_url: String,
-    pub release_date: String,
+    pub release_date: Option<String>,
     pub purchase_url: PurchaseUrl,
 }
 

@@ -10,17 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: bokuyaba-rss build
+      - name: mangacross-rss build
         run: |
           version=1.0.2
-          wget "https://github.com/naari3/bokuyaba-rss/releases/download/v${version}/bokuyaba-rss_v${version}_x86_64-unknown-linux-musl.zip"
-          unzip "bokuyaba-rss_v${version}_x86_64-unknown-linux-musl.zip"
-          ./bokuyaba-rss
-      - name: mv public
-        run: |
-          mkdir ./public
-          mv ./feed.xml ./public/feed.xml
-          mv ./index.html ./public/index.html
+          wget "https://github.com/naari3/mangacross-rss/releases/download/v${version}/mangacross-rss_v${version}_x86_64-unknown-linux-musl.zip"
+          unzip "mangacross-rss_v${version}_x86_64-unknown-linux-musl.zip"
+          ./mangacross-rss
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

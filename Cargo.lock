@@ -54,21 +54,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
-name = "bokuyaba-rss"
-version = "1.0.2"
-dependencies = [
- "env_logger",
- "eyre",
- "futures",
- "log",
- "reqwest",
- "rss",
- "serde",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -507,6 +492,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "51b9bbe6c47d51fc3e1a9b945965946b4c44142ab8792c50835a980d362c2710"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "mangacross-rss"
+version = "2.0.0"
+dependencies = [
+ "env_logger",
+ "eyre",
+ "futures",
+ "log",
+ "reqwest",
+ "rss",
+ "serde",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
