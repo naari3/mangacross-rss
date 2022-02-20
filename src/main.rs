@@ -1,6 +1,8 @@
 use manga_cross::{Comic, Episode};
 use reqwest::header::CONTENT_TYPE;
-use rss::{ChannelBuilder, EnclosureBuilder, GuidBuilder, ImageBuilder, Item, ItemBuilder};
+use rss::{
+    Channel, ChannelBuilder, EnclosureBuilder, GuidBuilder, ImageBuilder, Item, ItemBuilder,
+};
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
 
@@ -48,6 +50,40 @@ async fn make_item(ep: &Episode, comic: &Comic) -> eyre::Result<Item> {
         .build())
 }
 
+async fn make_channel(comic: &Comic) -> eyre::Result<Channel> {
+    info!("Make channel {} start", comic.title);
+    let mut channel = ChannelBuilder::default()
+        .title(comic.title.clone())
+        .link(format!(
+            "{}/comics/{}/",
+            MANGACROSS_HOST,
+            comic.dir_name.clone()
+        ))
+        .description(comic.caption_for_search.clone())
+        .image(
+            ImageBuilder::default()
+                .url(comic.image_url.clone())
+                .link(comic.image_url.clone())
+                .title(format!("{} {}", &comic.title, &comic.author))
+                .build(),
+        )
+        .pub_date(comic.latest_episode_publish_start.clone())
+        .last_build_date(comic.latest_episode_publish_start.clone())
+        .build();
+
+    let items: Vec<Item> = futures::future::try_join_all(
+        comic
+            .episodes
+            .iter()
+            .filter(|ep| ep.status == "public")
+            .map(|ep| make_item(ep, &comic)),
+    )
+    .await?;
+    channel.set_items(items);
+    info!("Make channel {} done", comic.title);
+    Ok(channel)
+}
+
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
@@ -61,35 +97,7 @@ async fn main() -> eyre::Result<()> {
     let bokuyaba = bokuyaba.comic;
 
     info!("Create feed start");
-    let mut channel = ChannelBuilder::default()
-        .title(bokuyaba.title.clone())
-        .link(format!(
-            "{}/comics/{}/",
-            MANGACROSS_HOST,
-            bokuyaba.dir_name.clone()
-        ))
-        .description(bokuyaba.caption_for_search.clone())
-        .image(
-            ImageBuilder::default()
-                .url(bokuyaba.image_url.clone())
-                .link(bokuyaba.image_url.clone())
-                .title(format!("{} {}", &bokuyaba.title, &bokuyaba.author))
-                .build(),
-        )
-        .pub_date(bokuyaba.latest_episode_publish_start.clone())
-        .last_build_date(bokuyaba.latest_episode_publish_start.clone())
-        .build();
-
-    let items: Vec<Item> = futures::future::try_join_all(
-        bokuyaba
-            .episodes
-            .iter()
-            .filter(|ep| ep.status == "public")
-            .map(|ep| make_item(ep, &bokuyaba)),
-    )
-    .await?;
-    channel.set_items(items);
-
+    let channel = make_channel(&bokuyaba).await?;
     let feed = channel.to_string();
     info!("Create feed done");
 
